@@ -10,12 +10,16 @@ export function useDecorator(
   ) {
     const original = descriptor.value;
 
-    descriptor.value = function (...args: any[]) {
+    descriptor.value = async function (...args: any[]) {
       const [req, reply] = args;
-      callback(req, reply, ...args);
+
+      const result = await callback(req, reply, ...args);
+      if (result !== undefined) {
+        return result;
+      }
+
       return original.apply(this, args);
     };
-
     return descriptor;
   };
 }
