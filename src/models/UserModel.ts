@@ -1,54 +1,26 @@
-// const Points = {
-//   teamId: "123",
-//   userId: "123",
-//   points: {
-//     unit: {
-//       goal: 0,
-//       current: 0,
-//     },
-//     money: {
-//       goal: 0,
-//       current: 0,
-//     },
-//   },
-// };
-
-// const Competition = {
-//   id: "123",
-//   name: "Competição #1",
-
-//   participants: [
-//     {
-//       entityType: "USER",
-//       entityId: "123",
-//     },
-//     {
-//       entityType: "TEAM",
-//       entityId: "456",
-//     },
-//   ],
-// };
-
-// const totalUsersPoints = points.find((point) => point.teamId == "456");
-// const points = totalUsersPoints.reduce((acc, point) => acc + point.points, 0);
-
 import * as bcrypt from "bcrypt";
 import mongoose, { Schema } from "mongoose";
 
 export interface IUser {
   _id: string;
+
   name: string;
   email: string;
-  age?: number;
+  avatar?: string;
+
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export const UserSchema: Schema = new Schema<IUser & { password: string }>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  age: { type: Number, min: 0 },
+  avatar: { type: String },
+
   password: { type: String, required: true },
+
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 UserSchema.pre("save", function (next) {
@@ -59,4 +31,9 @@ UserSchema.pre("save", function (next) {
   next();
 });
 
-export const User = mongoose.model<IUser>("User", UserSchema);
+UserSchema.pre("updateOne", function (next) {
+  this.set({ updatedAt: Date.now() });
+  next();
+});
+
+export const UserModel = mongoose.model<IUser>("User", UserSchema);
